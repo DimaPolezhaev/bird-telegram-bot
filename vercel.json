@@ -1,5 +1,11 @@
 {
-  "version": 3,
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
   "routes": [
     {
       "src": "/",
@@ -10,7 +16,7 @@
       "dest": "/api/cron.js"
     },
     {
-      "src": "/api/post", 
+      "src": "/api/post",
       "dest": "/api/post.js"
     }
   ],
