@@ -1,16 +1,9 @@
-import { getRandomBirdData } from '../../lib/birds.js';
-import { sendBirdPostToChannel } from '../../lib/telegram.js';
+import { getRandomBirdData } from '../lib/birds.js';
+import { sendBirdPostToChannel } from '../lib/telegram.js';
 
 export default async function handler(req, res) {
-  // Разрешаем только POST запросы
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  // Можно добавить проверку секретного ключа для безопасности
-  const { secret } = req.body;
-  if (secret && secret !== process.env.SECRET_KEY) {
-    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   try {

@@ -1,5 +1,5 @@
-import { getRandomBirdData } from '../../lib/birds.js';
-import { sendBirdPostToChannel } from '../../lib/telegram.js';
+import { getRandomBirdData } from '../lib/birds.js';
+import { sendBirdPostToChannel } from '../lib/telegram.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
