@@ -12,18 +12,12 @@
       "dest": "/api/index.js"
     },
     {
-      "src": "/api/cron",
+      "src": "/api/cron", 
       "dest": "/api/cron.js"
     },
     {
       "src": "/api/post",
       "dest": "/api/post.js"
-    }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron",
-      "schedule": "0 15 * * *"
     }
   ]
 }

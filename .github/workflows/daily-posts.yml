@@ -1,0 +1,29 @@
+name: Daily Bird Posts
+
+on:
+  schedule:
+    # 10:00 МСК (07:00 UTC)
+    - cron: '0 7 * * *'
+    # 18:00 МСК (15:00 UTC)  
+    - cron: '0 15 * * *'
+  workflow_dispatch:  # Разрешает ручной запуск
+
+jobs:
+  morning-post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send morning bird post (10:00 МСК)
+        run: |
+          echo "🦜 Отправляю утренний пост в 10:00 МСК..."
+          response=$(curl -s -X POST "https://bird-telegram-bot.vercel.app/api/cron")
+          echo "Response: $response"
+
+  evening-post:
+    runs-on: ubuntu-latest
+    needs: morning-post
+    steps:
+      - name: Send evening bird post (18:00 МСК)
+        run: |
+          echo "🦜 Отправляю вечерний пост в 18:00 МСК..."
+          response=$(curl -s -X POST "https://bird-telegram-bot.vercel.app/api/cron")
+          echo "Response: $response"
