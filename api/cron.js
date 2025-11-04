@@ -3,7 +3,11 @@ import { sendBirdPostToChannel } from '../lib/telegram.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ 
+      success: false,
+      error: 'Method not allowed',
+      message: 'Используйте POST запрос'
+    });
   }
 
   try {
@@ -15,19 +19,24 @@ export default async function handler(req, res) {
     const result = await sendBirdPostToChannel(birdData);
     console.log(`✅ Posted to Telegram: ${birdData.name}`);
     
-    res.status(200).json({
+    // ✅ УСПЕШНОЕ СООБЩЕНИЕ В ЛОГАХ
+    console.log('🚀 Всё успешно! Пост отправлен в Telegram канал!');
+    
+    return res.status(200).json({
       success: true,
+      message: '🚀 Всё успешно! Пост отправлен в Telegram канал!',
       bird: birdData.name,
       hasImage: !!birdData.imageUrl,
       factsCount: birdData.facts.length,
-      message: `Пост о ${birdData.name} успешно отправлен!`
+      timestamp: new Date().toISOString()
     });
     
   } catch (error) {
     console.error('❌ Cron error:', error);
-    res.status(500).json({ 
+    return res.status(500).json({ 
       success: false,
-      error: error.message 
+      error: error.message,
+      message: 'Ошибка при отправке поста'
     });
   }
 }
