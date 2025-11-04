@@ -1,4 +1,19 @@
 {
+  "version": 3,
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/api/cron",
+      "dest": "/api/cron.js"
+    },
+    {
+      "src": "/api/post", 
+      "dest": "/api/post.js"
+    }
+  ],
   "crons": [
     {
       "path": "/api/cron",
