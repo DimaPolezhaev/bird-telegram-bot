@@ -9,7 +9,6 @@ export default async function handler(req, res) {
       root: 'GET /',
       cron: 'POST /api/cron',
       post: 'POST /api/post',
-      quiz: 'POST /api/quiz'
     },
     timestamp: new Date().toISOString(),
     nextPost: 'Следующий пост скоро появится',
