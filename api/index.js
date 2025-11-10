@@ -11,7 +11,7 @@ export default async function handler(req, res) {
       post: 'POST /api/post'
     },
     timestamp: new Date().toISOString(),
-    nextPost: 'Следующий пост в 15:00 по UTC',
+    nextPost: 'Следующий пост скоро появится',
     status: '🦜 Бот активен и готов к работе!'
   });
 }
