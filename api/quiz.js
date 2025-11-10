@@ -1,5 +1,5 @@
 import { getWeeklyBirds, getRandomBirdFromHistory, getBirdFacts, getAllBirdFacts } from '../lib/birds.js';
-import { sendSundayQuiz, generateQuizWithGemini } from '../lib/telegram.js';
+import { generateQuizWithGemini } from '../lib/telegram.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
