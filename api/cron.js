@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     });
     
     // Если мало данных, возвращаем детальную информацию
-    if (weeklyBirds.length < 3) {
+    if (weeklyBirds.length < 1) {
       const birdsWithFacts = weeklyBirds.map(bird => ({
         name: bird,
         factsCount: getBirdFacts(bird).length
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
           factsCount: allFacts.size,
           birds: birdsWithFacts,
           required: {
-            minBirds: 3,
+            minBirds: 1,
             minFactsPerBird: 1
           }
         },
