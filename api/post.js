@@ -21,41 +21,13 @@ export default async function handler(req, res) {
     console.log(`💾 Сохранены факты для ${birdData.name}: ${birdData.facts.length} фактов`);
     
     // ✅ ПРОВЕРЯЕМ ИСТОРИЮ
-    const weeklyBirds = getWeeklyBirds();
-    const allFacts = getAllBirdFacts();
+    const weeklyBirds = await getWeeklyBirds();
+    const allFacts = await getAllBirdFacts();
     console.log(`📊 История после сохранения: ${weeklyBirds.length} птиц, ${allFacts.size} фактов`);
-    
-    // ✅ ДЕТАЛЬНАЯ ДИАГНОСТИКА
-    weeklyBirds.forEach(bird => {
-      const facts = allFacts.get(bird) || [];
-      console.log(`🦜 ${bird}: ${facts.length} фактов`);
-    });
     
     const result = await sendBirdPostToChannel(birdData);
     console.log(`✅ Posted to Telegram: ${birdData.name}`);
     
-    // ✅ ТЕСТИРУЕМ ВИКТОРИНУ СРАЗУ ПОСЛЕ ПОСТА
-    console.log('🎯 Тестируем викторину...');
-    const { sendSundayQuiz } = await import('../lib/telegram.js');
-    const quizResult = await sendSundayQuiz();
-    
-    let quizMessage = '❌ Викторина не отправлена';
-    let hasQuiz = false;
-    
-    if (quizResult) {
-      console.log('✅ Викторина отправлена!');
-      quizMessage = '✅ Викторина отправлена!';
-      hasQuiz = true;
-    } else {
-      console.log('❌ Викторина не отправлена (мало данных)');
-      
-      // Диагностика почему не отправилась
-      const currentBirds = getWeeklyBirds();
-      const currentFacts = getAllBirdFacts();
-      console.log(`📊 На момент викторины: ${currentBirds.length} птиц, ${currentFacts.size} фактов`);
-    }
-    
-    // ✅ УСПЕШНОЕ СООБЩЕНИЕ
     console.log('🚀 Всё успешно! Ручной пост отправлен!');
     
     return res.status(200).json({
@@ -64,17 +36,9 @@ export default async function handler(req, res) {
       bird: birdData.name,
       hasImage: !!birdData.imageUrl,
       factsCount: birdData.facts.length,
-      quiz: {
-        sent: hasQuiz,
-        message: quizMessage
-      },
       history: {
         birdsCount: weeklyBirds.length,
-        factsCount: allFacts.size,
-        birds: weeklyBirds.map(bird => ({
-          name: bird,
-          factsCount: (allFacts.get(bird) || []).length
-        }))
+        factsCount: allFacts.size
       },
       timestamp: new Date().toISOString(),
       telegramResult: result

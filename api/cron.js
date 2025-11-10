@@ -11,47 +11,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    // ДИАГНОСТИКА - проверяем данные
-    const weeklyBirds = getWeeklyBirds();
-    const allFacts = getAllBirdFacts();
+    const today = new Date();
+    const isSunday = today.getDay() === 0; // 0 = воскресенье
     
-    console.log('🔍 ДИАГНОСТИКА:');
-    console.log(`📊 Птиц в истории: ${weeklyBirds.length}`);
-    console.log(`💾 Фактов сохранено: ${allFacts.size}`);
-    
-    weeklyBirds.forEach(bird => {
-      const facts = getBirdFacts(bird);
-      console.log(`🦜 ${bird}: ${facts.length} фактов`);
-    });
-    
-    // Если мало данных, возвращаем детальную информацию
-    if (weeklyBirds.length < 1) {
-      const birdsWithFacts = weeklyBirds.map(bird => ({
-        name: bird,
-        factsCount: getBirdFacts(bird).length
-      }));
-      
-      return res.status(200).json({
-        success: true,
-        message: 'ℹ️ Недостаточно данных для викторины',
-        diagnostic: {
-          birdsCount: weeklyBirds.length,
-          factsCount: allFacts.size,
-          birds: birdsWithFacts,
-          required: {
-            minBirds: 1,
-            minFactsPerBird: 1
-          }
-        },
-        hasQuiz: false,
-        isSunday: true,
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // ДЛЯ ТЕСТИРОВАНИЯ - ВСЕГДА ОПРОСЫ (временно)
-    const isSunday = true; // Временно всегда true для тестирования
-    
+    // В ВОСКРЕСЕНЬЕ - ТОЛЬКО ОПРОСЫ, без обычных постов
     if (isSunday) {
       console.log('📅 Воскресенье - день викторин!');
       
@@ -63,10 +26,6 @@ export default async function handler(req, res) {
           message: '🎯 Воскресная викторина отправлена!',
           hasQuiz: true,
           isSunday: true,
-          diagnostic: {
-            birdsCount: weeklyBirds.length,
-            factsCount: allFacts.size
-          },
           timestamp: new Date().toISOString()
         });
       } else {
@@ -75,14 +34,6 @@ export default async function handler(req, res) {
           message: 'ℹ️ Воскресенье, но викторина не отправлена (мало данных)',
           hasQuiz: false,
           isSunday: true,
-          diagnostic: {
-            birdsCount: weeklyBirds.length,
-            factsCount: allFacts.size,
-            birds: weeklyBirds.map(bird => ({
-              name: bird,
-              factsCount: getBirdFacts(bird).length
-            }))
-          },
           timestamp: new Date().toISOString()
         });
       }
