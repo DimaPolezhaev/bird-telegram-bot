@@ -1,4 +1,4 @@
-import { getRandomBirdData, saveBirdFacts, getWeeklyBirds, getAllBirdFacts } from '../lib/birds.js';
+import { getRandomBirdData, saveBirdFacts, getWeeklyBirds, getAllBirdFacts, getBirdFacts } from '../lib/birds.js';
 import { sendBirdPostToChannel } from '../lib/telegram.js';
 
 export default async function handler(req, res) {
