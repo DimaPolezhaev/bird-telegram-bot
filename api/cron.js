@@ -1,11 +1,15 @@
-import { getRandomBirdData, getWeeklyBirds, getRandomBirdFromHistory, getBirdsCount, saveBirdFacts, getAllBirdFacts, getBirdFacts } from '../lib/birds.js';
+// api/cron.js - Автоматические посты
+import { getRandomBirdData } from '../lib/birds.js';
 import { sendBirdPostToChannel, sendSundayQuiz } from '../lib/telegram.js';
 
 export default async function handler(req, res) {
+  console.log('⏰ [CRON] Запуск автоматического поста');
+  
   if (req.method !== 'POST') {
+    console.log('❌ [CRON] Неверный метод');
     return res.status(405).json({ 
       success: false,
-      error: 'Method allowed',
+      error: 'Method not allowed',
       message: 'Используйте POST запрос'
     });
   }
@@ -13,14 +17,16 @@ export default async function handler(req, res) {
   try {
     const today = new Date();
     const isSunday = today.getDay() === 0; // 0 = воскресенье
-    
-    // В ВОСКРЕСЕНЬЕ - ТОЛЬКО ОПРОСЫ, без обычных постов
+    console.log(`📅 [CRON] День недели: ${today.getDay()} (воскресенье: ${isSunday})`);
+
+    // В ВОСКРЕСЕНЬЕ - ТОЛЬКО ОПРОСЫ
     if (isSunday) {
-      console.log('📅 Воскресенье - день викторин!');
+      console.log('📅 [CRON] Воскресенье - отправляем викторину');
       
       const quizResult = await sendSundayQuiz();
       
-      if (quizResult) {
+      if (quizResult && quizResult.ok) {
+        console.log('✅ [CRON] Викторина успешно отправлена');
         return res.status(200).json({
           success: true,
           message: '🎯 Воскресная викторина отправлена!',
@@ -29,9 +35,10 @@ export default async function handler(req, res) {
           timestamp: new Date().toISOString()
         });
       } else {
+        console.log('⚠️ [CRON] Викторина не отправлена');
         return res.status(200).json({
           success: true,
-          message: 'ℹ️ Воскресенье, но викторина не отправлена (мало данных)',
+          message: 'ℹ️ Воскресенье, но викторина не отправлена',
           hasQuiz: false,
           isSunday: true,
           timestamp: new Date().toISOString()
@@ -40,35 +47,60 @@ export default async function handler(req, res) {
     }
     
     // В остальные дни - обычные посты
-    console.log('🦜 Starting automatic bird post...');
+    console.log('🦜 [CRON] Начинаю выбор птицы для поста');
     
     const birdData = await getRandomBirdData();
-    console.log(`✅ Bird data received: ${birdData.name}`);
     
-    // Сохраняем факты для будущих викторин
-    saveBirdFacts(birdData.name, birdData.facts);
+    if (!birdData) {
+      throw new Error('Не удалось получить данные о птице');
+    }
+    
+    console.log(`✅ [CRON] Данные получены: ${birdData.name}`);
+    console.log(`📸 [CRON] Есть фото: ${!!birdData.imageUrl}`);
+    console.log(`📝 [CRON] Количество фактов: ${birdData.facts?.length || 0}`);
     
     const result = await sendBirdPostToChannel(birdData);
-    console.log(`✅ Posted to Telegram: ${birdData.name}`);
     
-    console.log('🚀 Всё успешно! Пост отправлен в Telegram канал!');
-    
-    return res.status(200).json({
-      success: true,
-      message: '🚀 Всё успешно! Пост отправлен в Telegram канал!',
-      bird: birdData.name,
-      hasImage: !!birdData.imageUrl,
-      factsCount: birdData.facts.length,
-      isSunday: false,
-      timestamp: new Date().toISOString()
-    });
+    if (result && result.ok) {
+      console.log(`✅ [CRON] Пост успешно отправлен: ${birdData.name}`);
+      return res.status(200).json({
+        success: true,
+        message: '🚀 Всё успешно! Пост отправлен в Telegram канал!',
+        bird: birdData.name,
+        hasImage: !!birdData.imageUrl,
+        factsCount: birdData.facts?.length || 0,
+        isSunday: false,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      throw new Error(`Ошибка отправки: ${result?.description || 'Неизвестная ошибка'}`);
+    }
     
   } catch (error) {
-    console.error('❌ Cron error:', error);
+    console.error('❌ [CRON] Ошибка:', error);
     return res.status(500).json({ 
       success: false,
       error: error.message,
       message: 'Ошибка при отправке поста'
     });
+  }
+}
+
+export async function cleanupOldMessages() {
+  try {
+    console.log('🧹 [CLEANUP] Очистка старых сообщений истории');
+    
+    const result = await clearOldMessages(7);
+    
+    if (result) {
+      console.log('✅ [CLEANUP] Очистка завершена');
+      return { success: true, message: 'Очистка старых сообщений выполнена' };
+    } else {
+      return { success: false, message: 'Ошибка очистки' };
+    }
+    
+  } catch (error) {
+    console.error('❌ [CLEANUP] Ошибка:', error);
+    return { success: false, error: error.message };
   }
 }

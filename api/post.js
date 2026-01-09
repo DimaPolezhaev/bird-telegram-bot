@@ -1,8 +1,12 @@
-import { getRandomBirdData, saveBirdFacts, getWeeklyBirds, getAllBirdFacts, getBirdFacts } from '../lib/birds.js';
+// api/post.js - Ручные посты
+import { getRandomBirdData, getWeeklyBirds, getAllBirdFacts } from '../lib/birds.js';
 import { sendBirdPostToChannel } from '../lib/telegram.js';
 
 export default async function handler(req, res) {
+  console.log('🖱️ [MANUAL] Запрос на ручной пост');
+  
   if (req.method !== 'POST') {
+    console.log('❌ [MANUAL] Неверный метод');
     return res.status(405).json({ 
       success: false,
       error: 'Method not allowed', 
@@ -11,41 +15,37 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('🦜 Manual post request...');
+    console.log('🦜 [MANUAL] Начинаю выбор птицы');
     
     const birdData = await getRandomBirdData();
-    console.log(`✅ Bird data received: ${birdData.name}`);
     
-    // ✅ СОХРАНЯЕМ ФАКТЫ ДЛЯ ВИКТОРИН
-    saveBirdFacts(birdData.name, birdData.facts);
-    console.log(`💾 Сохранены факты для ${birdData.name}: ${birdData.facts.length} фактов`);
+    if (!birdData) {
+      throw new Error('Не удалось получить данные о птице');
+    }
     
-    // ✅ ПРОВЕРЯЕМ ИСТОРИЮ
-    const weeklyBirds = await getWeeklyBirds();
-    const allFacts = await getAllBirdFacts();
-    console.log(`📊 История после сохранения: ${weeklyBirds.length} птиц, ${allFacts.size} фактов`);
-    
+    console.log(`✅ [MANUAL] Данные получены: ${birdData.name}`);
+    console.log(`💾 [MANUAL] Фактов для отправки: ${birdData.facts?.length || 0}`);
+
     const result = await sendBirdPostToChannel(birdData);
-    console.log(`✅ Posted to Telegram: ${birdData.name}`);
+    console.log(`✅ [MANUAL] Пост отправлен: ${birdData.name}`);
     
-    console.log('🚀 Всё успешно! Ручной пост отправлен!');
-    
-    return res.status(200).json({
-      success: true,
-      message: '🚀 Всё успешно! Пост отправлен в Telegram канал!',
-      bird: birdData.name,
-      hasImage: !!birdData.imageUrl,
-      factsCount: birdData.facts.length,
-      history: {
-        birdsCount: weeklyBirds.length,
-        factsCount: allFacts.size
-      },
-      timestamp: new Date().toISOString(),
-      telegramResult: result
-    });
+    if (result && result.ok) {
+      console.log('🚀 [MANUAL] Ручной пост успешно отправлен');
+      return res.status(200).json({
+        success: true,
+        message: '🚀 Всё успешно! Пост отправлен в Telegram канал!',
+        bird: birdData.name,
+        hasImage: !!birdData.imageUrl,
+        factsCount: birdData.facts?.length || 0,
+        timestamp: new Date().toISOString(),
+        telegramResult: result
+      });
+    } else {
+      throw new Error(`Ошибка отправки: ${result?.description || 'Неизвестная ошибка'}`);
+    }
     
   } catch (error) {
-    console.error('❌ Manual post error:', error);
+    console.error('❌ [MANUAL] Ошибка:', error);
     return res.status(500).json({
       success: false,
       error: error.message,

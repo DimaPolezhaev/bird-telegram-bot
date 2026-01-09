@@ -1,13 +1,20 @@
 {
   "name": "bird-telegram-bot",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vercel dev"
+    "dev": "vercel dev",
+    "setup-webhook": "node setup-webhook.js",
+    "set-commands": "node set-bot-commands.js",
+    "deploy": "vercel --prod",
+    "deploy-bot": "vercel --prod && node setup-webhook.js && node set-bot-commands.js",
+    "test-supabase": "node test-supabase.js",
+    "setup-database": "node setup-database.js",
+    "migrate": "node migrate-to-supabase.js"
   },
   "dependencies": {
-    "@upstash/redis": "^1.35.6",
-    "@vercel/kv": "^3.0.0",
-    "node-fetch": "^3.3.2"
+    "@supabase/supabase-js": "^2.88.0",
+    "dotenv": "^16.6.1",
+    "undici": "^7.16.0"
   }
 }
