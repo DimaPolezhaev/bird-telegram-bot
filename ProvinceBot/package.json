@@ -1,0 +1,13 @@
+{
+    "name": "province-bot",
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "setup": "node set-commands.js && node setup-webhook.js"
+    },
+    "dependencies": {
+        "node-telegram-bot-api": "^0.66.0",
+        "@supabase/supabase-js": "^2.39.3",
+        "dotenv": "^16.4.5"
+    }
+}

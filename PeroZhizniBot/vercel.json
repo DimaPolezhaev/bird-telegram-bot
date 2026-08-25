@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/admin",
+      "dest": "/admin.html"
+    },
+    {
+      "src": "/api/admin/queue",
+      "dest": "/api/admin/queue.js"
+    },
+    {
+      "src": "/",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/api/cron",
+      "dest": "/api/cron.js"
+    },
+    {
+      "src": "/api/post",
+      "dest": "/api/post.js"
+    },
+    {
+      "src": "/api/bot",
+      "dest": "/api/bot.js"
+    },
+    {
+      "src": "/api/province-bot",
+      "dest": "/api/province-bot.js"
+    }
+  ]
+}
